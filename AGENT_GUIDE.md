@@ -55,7 +55,7 @@ PYTHONPATH=. python3 pipeline.py --check
 ### What the User Provides
 1. **YouTube channel URL** — the channel to clone the style from
 2. **Topics** — a list of topics to create videos about (the agent picks one per iteration)
-3. **Voice** — one of: josh, koko, pixxy, prof, rochie, spraky (stays the same for all videos)
+3. **Voice** — a preset (josh, koko, pixxy, prof, rochie, spraky) or a custom cloned voice name from Gathos (stays the same for all videos)
 4. **Image style** — one of: text-heavy, documentary, 3d-render, sketch, anime
 5. **Video duration** — target length in seconds (e.g., 60, 120, 180). Used to calculate word count:
    - 60s = ~150 words
@@ -283,6 +283,7 @@ When the user picks `text-heavy`, the agent must:
 
 ## Available Voices
 
+### Preset Voices
 | Voice | Best for |
 |-------|----------|
 | `josh` | General, professional narration |
@@ -291,6 +292,11 @@ When the user picks `text-heavy`, the agent must:
 | `prof` | Academic, authoritative |
 | `rochie` | Deep, dramatic |
 | `spraky` | Casual, friendly |
+
+### Custom Cloned Voices
+Users can clone their own voice on [gathos.com](https://gathos.com) and use it by name. Just provide the custom voice name instead of a preset — the pipeline passes it directly to the Gathos TTS API.
+
+Example: if the user cloned their voice and named it `"brian"`, they just say `voice: brian` and it works.
 
 The user picks a voice ONCE and it stays the same for all videos in the session.
 

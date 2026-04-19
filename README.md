@@ -84,7 +84,7 @@ You should see all green checkmarks.
 |-------|---------|
 | YouTube channel URL | `https://youtube.com/@clearvaluetax9382` |
 | Topics (list) | "inflation tips, gold investing, tax strategies" |
-| Voice | `josh` (or koko, pixxy, prof, rochie, spraky) |
+| Voice | `josh` (preset) or any custom cloned voice name |
 | Image style | `documentary` (or text-heavy, 3d-render, sketch, anime) |
 | Video duration | `120` (seconds) |
 
@@ -186,6 +186,7 @@ Style: text-heavy
 
 ## Available Voices
 
+### Preset Voices
 | Voice | Style |
 |-------|-------|
 | `josh` | Professional, general narration |
@@ -194,6 +195,9 @@ Style: text-heavy
 | `prof` | Academic, authoritative |
 | `rochie` | Deep, dramatic |
 | `spraky` | Casual, friendly |
+
+### Custom Voice Cloning
+You can clone your own voice on [gathos.com](https://gathos.com) and use it by name. Just provide your custom voice name instead of a preset (e.g., `voice: my-voice-name`).
 
 ---
 

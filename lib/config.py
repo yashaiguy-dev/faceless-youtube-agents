@@ -44,7 +44,7 @@ ZERNIO_API_KEY = os.getenv("ZERNIO_API_KEY", "")
 
 FILE_HOST_URL = os.getenv("FILE_HOST_URL", "https://file.io")
 
-AVAILABLE_VOICES = ["josh", "koko", "pixxy", "prof", "rochie", "spraky"]
+PRESET_VOICES = ["josh", "koko", "pixxy", "prof", "rochie", "spraky"]
 DEFAULT_VOICE = "josh"
 
 IMAGE_STYLES = {
