@@ -34,7 +34,6 @@ from lib import state as run_state
 from lib.gathos_client import generate_images_batch, generate_tts_batch, generate_thumbnail
 from lib.video_assembler import assemble_video
 from lib.media_host import upload_file
-from lib.zernio_client import upload_video
 
 
 def check_dependencies():
@@ -54,7 +53,7 @@ def check_dependencies():
             print(f"  ✗ {name}: NOT FOUND")
             all_ok = False
 
-    from lib.config import GATHOS_IMAGE_API_KEY, GATHOS_TTS_API_KEY, ZERNIO_API_KEY
+    from lib.config import GATHOS_IMAGE_API_KEY, GATHOS_TTS_API_KEY
 
     if GATHOS_IMAGE_API_KEY:
         print(f"  ✓ GATHOS_IMAGE_API_KEY: set")
@@ -68,10 +67,13 @@ def check_dependencies():
         print(f"  ✗ GATHOS_TTS_API_KEY: not set")
         all_ok = False
 
-    if ZERNIO_API_KEY:
-        print(f"  ✓ ZERNIO_API_KEY: set")
+    from lib.config import YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN
+
+    yt_direct = all([YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN])
+    if yt_direct:
+        print(f"  ✓ YouTube Direct: configured (Client ID + Secret + Refresh Token)")
     else:
-        print(f"  ⚠ ZERNIO_API_KEY: not set (needed for YouTube upload)")
+        print(f"  ⚠ YouTube Direct: not configured — videos will be saved locally only")
 
     return all_ok
 
@@ -185,11 +187,13 @@ def stage_thumbnail(run_id: str):
 
 
 def stage_upload(run_id: str):
-    """Upload video + thumbnail to YouTube via Zernio as private draft. Skips gracefully if no key."""
-    from lib.config import ZERNIO_API_KEY
+    """Upload video + thumbnail to YouTube as private draft via YouTube Direct API."""
+    from lib.config import YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN
 
-    if not ZERNIO_API_KEY:
-        print(f"\n[UPLOAD] Skipped — ZERNIO_API_KEY not set. Video saved locally.")
+    use_youtube_direct = all([YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN])
+
+    if not use_youtube_direct:
+        print(f"\n[UPLOAD] Skipped — YouTube credentials not set. Video saved locally.")
         run_state.update_stage(run_id, "upload", "skipped")
         return None
 
@@ -203,28 +207,22 @@ def stage_upload(run_id: str):
     if not final_video or not Path(final_video).exists():
         raise FileNotFoundError("Final video not found. Run assembly stage first.")
 
-    run_state.update_stage(run_id, "upload", "in_progress")
-    print(f"\n[UPLOAD] Uploading to YouTube as private draft...")
-
-    print("  Uploading video file to hosting...")
-    video_url = upload_file(final_video)
-
-    thumbnail_url = ""
-    thumb_path = state["stages"]["thumbnail"].get("output", "")
-    if thumb_path and Path(thumb_path).exists():
-        print("  Uploading thumbnail to hosting...")
-        thumbnail_url = upload_file(thumb_path)
-
     title = slides_json.get("title", state["title"])
     description = slides_json.get("description", "")
     tags = slides_json.get("tags", [])
+    thumb_path = state["stages"]["thumbnail"].get("output", "")
 
-    result = upload_video(
-        video_url=video_url,
+    run_state.update_stage(run_id, "upload", "in_progress")
+
+    from lib.youtube_client import upload_video as yt_direct_upload
+    print(f"\n[UPLOAD] Uploading to YouTube directly (Google API)...")
+
+    result = yt_direct_upload(
+        file_path=final_video,
         title=title,
         description=description,
         tags=tags,
-        thumbnail_url=thumbnail_url,
+        thumbnail_path=thumb_path,
         visibility="private",
     )
 
@@ -256,7 +254,7 @@ def run_all(run_id: str):
     state = run_state.load_run(run_id)
 
     upload_status = state["stages"]["upload"].get("status", "unknown")
-    yt_msg = "uploaded as private draft" if upload_status == "complete" else "skipped (no ZERNIO_API_KEY)"
+    yt_msg = "uploaded as private draft" if upload_status == "complete" else "skipped (no upload credentials)"
 
     print(f"\n{'='*60}")
     print(f"COMPLETE")

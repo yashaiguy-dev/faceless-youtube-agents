@@ -32,16 +32,23 @@ cp .env.example .env
 |-----|---------|-----------|
 | `GATHOS_IMAGE_API_KEY` | Image generation (`img_live_*`) | https://gathos.com |
 | `GATHOS_TTS_API_KEY` | Text-to-speech (`tts_live_*`) | https://gathos.com |
-| `ZERNIO_API_KEY` | YouTube upload | https://zernio.com |
 
-### Zernio Setup (for YouTube upload)
-Before the pipeline can upload videos to YouTube, the user must:
-1. Sign up at [zernio.com](https://zernio.com)
-2. Connect their YouTube channel — Zernio walks you through Google OAuth
-3. Copy the API key from the Zernio dashboard
-4. Paste it into `.env` as `ZERNIO_API_KEY`
+### YouTube Upload Setup (Optional)
 
-Without this, the pipeline still works end-to-end — it just saves the video and thumbnail locally instead of uploading.
+Upload directly to YouTube using your own Google account. Free, no third-party service needed.
+
+1. Follow the setup guide: `docs/YouTube-Direct-Upload-Setup.md`
+2. You'll get 3 keys from Google Cloud Console + OAuth Playground (~15 min one-time setup)
+3. Add them to `.env`:
+```env
+YOUTUBE_CLIENT_ID=your_client_id
+YOUTUBE_CLIENT_SECRET=your_client_secret
+YOUTUBE_REFRESH_TOKEN=your_refresh_token
+```
+
+Limit: ~6 uploads/day on free quota (can request more from Google).
+
+Without these keys, the pipeline still works end-to-end — it just saves the video and thumbnail locally instead of uploading.
 
 ### Check everything works
 ```bash
@@ -127,7 +134,7 @@ PYTHONPATH=. python3 pipeline.py --run-id <run_id> --run-all
 
 This executes: images → TTS → assembly → thumbnail → YouTube upload (as private draft).
 
-If `ZERNIO_API_KEY` is not set, the upload stage will be skipped — the video and thumbnail are still saved locally.
+If YouTube credentials are not set, the upload stage will be skipped — the video and thumbnail are still saved locally.
 
 #### STEP 5: Report & Loop
 
@@ -135,7 +142,7 @@ Report to the user:
 - Video title
 - Path to final.mp4
 - Path to thumbnail.png
-- YouTube upload status (private draft, or skipped if no Zernio key)
+- YouTube upload status (private draft, or skipped if no YouTube credentials)
 
 Then go back to STEP 2, pick the next topic, and generate the next video. One video at a time. Keep going until the user stops the loop or all topics are exhausted.
 
@@ -230,7 +237,7 @@ PYTHONPATH=. python3 pipeline.py --run-id <run_id> --stage assembly
 # Generate thumbnail only
 PYTHONPATH=. python3 pipeline.py --run-id <run_id> --stage thumbnail
 
-# Upload to YouTube only (requires assembled video + ZERNIO_API_KEY)
+# Upload to YouTube only (requires assembled video + YouTube credentials)
 PYTHONPATH=. python3 pipeline.py --run-id <run_id> --stage upload
 ```
 
@@ -390,8 +397,8 @@ The user picks a voice ONCE and it stays the same for all videos in the session.
 
 **FFmpeg assembly fails**: Check that all slide images and audio files exist in the run directory.
 
-**Zernio upload fails**: Make sure your YouTube account is connected at https://zernio.com and your API key has YouTube permissions.
+**YouTube Direct upload fails**: Check that all 3 keys (CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN) are in `.env`. If you get a 403, your refresh token may be revoked — re-do the OAuth Playground step. If you hit quota limits (~6/day), request a quota increase in Google Cloud Console.
 
-**file.io upload fails**: The free tier has limits. Consider setting `FILE_HOST_URL` to your own storage endpoint.
+**file.io upload fails**: The free tier has limits. Consider setting `FILE_HOST_URL` to your own storage endpoint if needed.
 
 **Image stage interrupted**: Rerunning `--stage images` skips already-generated images and only creates missing ones.

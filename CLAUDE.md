@@ -26,7 +26,7 @@ User says: "process scripts from [folder]" or "make videos from my scripts"
 - `lib/gathos_client.py` — Image + TTS generation
 - `lib/channel_analyzer.py` — YouTube channel analysis
 - `lib/video_assembler.py` — FFmpeg video assembly
-- `lib/zernio_client.py` — YouTube upload via Zernio
+- `lib/youtube_client.py` — YouTube Direct upload via Google API
 - `lib/media_host.py` — File hosting for public URLs
 - `skills/viral-dna-extractor.md` — How to extract viral DNA
 - `skills/script-to-slides.md` — How to convert scripts to slides JSON

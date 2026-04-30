@@ -12,7 +12,7 @@ Works with **Claude Code**, **Gemini CLI**, **Cursor**, or any AI coding agent.
 4. **Generates** voiceover narration (Gathos TTS)
 5. **Assembles** everything into a 1920x1080 video with FFmpeg
 6. **Auto-generates** a YouTube thumbnail
-7. **Uploads** to YouTube as a private draft (Zernio API — optional)
+7. **Uploads** to YouTube as a private draft (YouTube Direct API — optional)
 
 ---
 
@@ -60,9 +60,11 @@ Edit `.env` and add your keys:
 GATHOS_IMAGE_API_KEY=img_live_your_key_here
 GATHOS_TTS_API_KEY=tts_live_your_key_here
 
-# Optional — for auto YouTube upload
-# Sign up at https://zernio.com, connect your YouTube channel, then paste key
-ZERNIO_API_KEY=your_key_here
+# Optional — for auto YouTube upload (free, uses your own Google account)
+# Follow setup guide: docs/YouTube-Direct-Upload-Setup.md
+YOUTUBE_CLIENT_ID=your_client_id
+YOUTUBE_CLIENT_SECRET=your_client_secret
+YOUTUBE_REFRESH_TOKEN=your_refresh_token
 ```
 
 ### 5. Verify setup
@@ -231,16 +233,20 @@ Run state tracked in `state/<run_id>.json` — pipeline is resumable if interrup
 
 ## YouTube Upload (Optional)
 
-To auto-upload videos as private drafts:
+Auto-upload videos as private drafts using your own Google account — free, no third-party service.
 
-1. Sign up at [zernio.com](https://zernio.com)
-2. Connect your YouTube channel (Zernio handles the Google OAuth)
-3. Copy your API key from the dashboard
-4. Add to `.env`: `ZERNIO_API_KEY=your_key`
+1. Follow the setup guide: [`docs/YouTube-Direct-Upload-Setup.md`](docs/YouTube-Direct-Upload-Setup.md)
+2. You'll get 3 keys from Google Cloud Console + OAuth Playground (~15 min one-time setup)
+3. Add to `.env`:
+```env
+YOUTUBE_CLIENT_ID=your_client_id
+YOUTUBE_CLIENT_SECRET=your_client_secret
+YOUTUBE_REFRESH_TOKEN=your_refresh_token
+```
 
-Videos upload as **private** — you review in YouTube Studio and publish when ready.
+Videos upload as **private** — you review in YouTube Studio and publish when ready. ~6 uploads/day on free quota (can request more from Google).
 
-Without Zernio, the pipeline still works — videos save locally.
+Without these keys, the pipeline still works — videos save locally.
 
 ---
 
@@ -250,7 +256,7 @@ Without Zernio, the pipeline still works — videos save locally.
 |---------|-----------|-------------|-----------|
 | [Gathos](https://gathos.com) | `img_live_*` | Image generation | Yes |
 | [Gathos](https://gathos.com) | `tts_live_*` | Text-to-speech voiceover | Yes |
-| [Zernio](https://zernio.com) | API key | YouTube upload as draft | Optional |
+| YouTube Direct | Client ID + Secret + Refresh Token | YouTube upload as draft | Optional |
 
 ---
 
